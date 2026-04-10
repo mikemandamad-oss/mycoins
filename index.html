@@ -24,30 +24,10 @@
     <p><b>Φοιτητής:</b> Μανδαμαδιώτης Μιχαήλ - ct18162 </p>
     <p><b>Θέμα:</b> Συλλογή Νομισμάτων (Πηγή:https://mint.bankofgreece.gr/el/nomismata/) </p>
 </div>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        table,th,td {
-            border : 1px solid black;
-            border-collapse: collapse;
-        }
-        th,td {
-            padding: 5px;
-        }
-        .my-info {
-            background-color: #f2f2f2;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px double #000;
-        }
-    </style>
-</head>
-<body>
 
 
-<button type="button" onclick="loadDoc()">1. Φόρτωση δεδομένων (Ανακατεμένα)</button>
+
+<button type="button" onclick="loadDoc()">1. Φόρτωση δεδομένων</button>
 <button type="button" onclick="loadAndSortArtist()">2. Ταξινόμηση (Δημιουργός)</button>
 <button type="button" onclick="showNewest()">3. Εμφάνιση Νεότερου</button>
 <button type="button" onclick="showCheapest()">4. Εμφάνιση Φθηνότερου</button>
@@ -62,16 +42,11 @@ function loadDoc() {
   xhttp.onload = function() {
     const xmlDoc = this.responseXML;
     const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let selection = [];
-    
-
-    for (let i=0; i<x.length; i++) {
-        selection.push([i, Math.random()]); 
+    let table="<tr><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
+    for (let i = 0; i < x.length; i++) { 
+        table += "<tr><td>" + getVal(x[i], "TITLOS") + "</td><td>" + getVal(x[i], "DIMIOURGOS") + "</td><td>" + getVal(x[i], "ETOS") + "</td><td>" + getVal(x[i], "TIMI") + "</td></tr>";
     }
-    
-    selection.sort(function(a, b) { return a[1] - b[1]; });
-    
-    renderSelection(x, selection);
+    document.getElementById("demo").innerHTML = table;
   }
   xhttp.open("GET", "nomismata.xml");
   xhttp.send();
@@ -85,16 +60,14 @@ function loadAndSortArtist() {
     const x = xmlDoc.getElementsByTagName("NOMISMA");
     let selection = [];
     for (let i=0; i<x.length; i++) {
-      const val = [i, x[i].getElementsByTagName("DIMIOURGOS")[0].childNodes[0].nodeValue];
-      selection.push(val);
+      selection.push([i, x[i].getElementsByTagName("DIMIOURGOS")[0].childNodes[0].nodeValue]);
     }
-    // Απλή ταξινόμηση (όπως το παράδειγμα του καθηγητή)
     selection.sort(function(a, b) {
         if (a[1] < b[1]) return -1;
         if (a[1] > b[1]) return 1;
         return 0;
     });
-    renderSelection(x, selection);
+    renderResult(x, selection);
   }
   xhttp.open("GET", "nomismata.xml");
   xhttp.send();
@@ -106,13 +79,12 @@ function showNewest() {
   xhttp.onload = function() {
     const xmlDoc = this.responseXML;
     const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let maxEtos = 0;
-    let index = 0;
+    let max = 0; let idx = 0;
     for (let i=0; i<x.length; i++) {
-        let y = parseInt(x[i].getElementsByTagName("ETOS")[0].childNodes[0].nodeValue);
-        if (y > maxEtos) { maxEtos = y; index = i; }
+        let y = parseInt(getVal(x[i], "ETOS"));
+        if (y > max) { max = y; idx = i; }
     }
-    renderOne(x, index);
+    renderOne(x, idx);
   }
   xhttp.open("GET", "nomismata.xml");
   xhttp.send();
@@ -124,20 +96,18 @@ function showCheapest() {
   xhttp.onload = function() {
     const xmlDoc = this.responseXML;
     const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let minPrice = Infinity;
-    let index = 0;
+    let min = 9999; let idx = 0;
     for (let i=0; i<x.length; i++) {
-        let p = parseFloat(x[i].getElementsByTagName("TIMI")[0].childNodes[0].nodeValue);
-        if (p < minPrice) { minPrice = p; index = i; }
+        let p = parseFloat(getVal(x[i], "TIMI"));
+        if (p < min) { min = p; idx = i; }
     }
-    renderOne(x, index);
+    renderOne(x, idx);
   }
   xhttp.open("GET", "nomismata.xml");
   xhttp.send();
 }
 
-
-function renderSelection(x, selection) {
+function renderResult(x, selection) {
   let table="<tr><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
   for (let j = 0; j < selection.length; j++) {
     let i = selection[j][0];
@@ -152,8 +122,8 @@ function renderOne(x, i) {
   document.getElementById("demo").innerHTML = table;
 }
 
-function getVal(node, tagName) {
-  return node.getElementsByTagName(tagName)[0].childNodes[0].nodeValue;
+function getVal(node, tag) {
+  return node.getElementsByTagName(tag)[0].childNodes[0].nodeValue;
 }
 </script>
 
