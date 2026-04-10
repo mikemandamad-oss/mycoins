@@ -10,17 +10,25 @@
         th,td {
             padding: 5px;
         }
+        .my-info {
+            background-color: #f2f2f2;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 
-<h2>Συλλογή Νομισμάτων (Πηγή:https://mint.bankofgreece.gr/el/nomismata/)</h2>
+<div class="my-info">
+    <h3>Πανεπιστήμιο Αιγαίου ΤΠΤΕ</h3>
+    <p><b>Φοιτητής:</b> Μανδαμαδιώτης Μιχαήλ - ct18162 </p>
+    <p><b>Θέμα:</b> Συλλογή Νομισμάτων (Πηγή:https://mint.bankofgreece.gr/el/nomismata/) </p>
+</div>
 
-<button type="button" onclick="loadDoc()">Εμφάνιση Συλλογής</button>
-<button type="button" onclick="loadAndSortPrice()">Ταξινόμηση ανά Τιμή</button>
-<button type="button" onclick="loadAndSortArtist()">Ταξινόμηση ανά Καλλιτέχνη</button>
-<button type="button" onclick="showMinPrice()">Εμφάνιση Φθηνότερου</button>
-<button type="button" onclick="showNewest()">Εμφάνιση Νεότερου</button>
+<button type="button" onclick="loadDoc()">1. Φόρτωση δεδομένων</button>
+<button type="button" onclick="loadAndSort()">2. Ταξινόμηση (Δημιουργός)</button>
+<button type="button" onclick="showNewest()">3. Εμφάνιση Νεότερου</button>
+<button type="button" onclick="showCheapest()">4. Εμφάνιση Φθηνότερου</button>
 
 <br><br>
 <table id="demo"></table>
@@ -37,8 +45,8 @@ function loadDoc() {
 
 function myFunction(xml) {
   const xmlDoc = xml.responseXML;
-  const x = xmlDoc.getElementsByTagName("nomisma");
-  let table="<tr><th>Τίτλος</th><th>Καλλιτέχνης</th><th>Έτος</th><th>Τιμή</th></tr>";
+  const x = xmlDoc.getElementsByTagName("NOMISMA");
+  let table="<tr><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
   for (let i = 0; i < x.length; i++) { 
     table += "<tr><td>" +
     x[i].getElementsByTagName("TITLOS")[0].childNodes[0].nodeValue + "</td><td>" +
@@ -50,61 +58,33 @@ function myFunction(xml) {
 }
 
 
-function comparePrice(a,b) { return a[1] - b[1]; }
-function compareArtist(a,b) { return a[1].localeCompare(b[1]); }
-
-
-function loadAndSortPrice() {
+function loadAndSort() {
   const xhttp = new XMLHttpRequest();
   xhttp.onload = function() {
-    const xmlDoc = this.responseXML;
-    const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let selection = [];
-    for (let i=0; i<x.length; i++) {
-      const val = [i, parseFloat(x[i].getElementsByTagName("TIMI")[0].childNodes[0].nodeValue)];
-      selection.push(val);
-    }
-    selection.sort(comparePrice);
-    renderSorted(x, selection);
+    sortArtist(this);
   }
   xhttp.open("GET", "nomismata.xml");
   xhttp.send();
 }
 
-
-function loadAndSortArtist() {
-  const xhttp = new XMLHttpRequest();
-  xhttp.onload = function() {
-    const xmlDoc = this.responseXML;
-    const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let selection = [];
-    for (let i=0; i<x.length; i++) {
-      const val = [i, x[i].getElementsByTagName("DIMIOURGOS")[0].childNodes[0].nodeValue];
-      selection.push(val);
-    }
-    selection.sort(compareArtist);
-    renderSorted(x, selection);
-  }
-  xhttp.open("GET", "nomismata.xml");
-  xhttp.send();
+function compare(a,b) {
+  if (a[1] < b[1]) return -1;
+  if (a[1] > b[1]) return 1;
+  return 0;
 }
 
-
-function showMinPrice() {
-  const xhttp = new XMLHttpRequest();
-  xhttp.onload = function() {
-    const xmlDoc = this.responseXML;
-    const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let min = parseFloat(x[0].getElementsByTagName("TIMI")[0].childNodes[0].nodeValue);
-    let index = 0;
-    for (let i=1; i<x.length; i++) {
-      let current = parseFloat(x[i].getElementsByTagName("TIMI")[0].childNodes[0].nodeValue);
-      if (current < min) { min = current; index = i; }
-    }
-    renderSingle(x, index);
+function sortArtist(xml) {
+  const xmlDoc = xml.responseXML;
+  const x = xmlDoc.getElementsByTagName("NOMISMA");
+  let selection = [];
+  for (let i=0; i<x.length; i++) {
+      // Παίρνουμε το index και το όνομα δημιουργού για ταξινόμηση
+      const artist = [i, x[i].getElementsByTagName("DIMIOURGOS")[0].childNodes[0].nodeValue];
+      selection.push(artist);
   }
-  xhttp.open("GET", "nomismata.xml");
-  xhttp.send();
+  selection.sort(compare);
+  
+  renderResult(x, selection);
 }
 
 
@@ -113,11 +93,14 @@ function showNewest() {
   xhttp.onload = function() {
     const xmlDoc = this.responseXML;
     const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let maxEtos = parseInt(x[0].getElementsByTagName("ETOS")[0].childNodes[0].nodeValue);
+    let maxEtos = 0;
     let index = 0;
-    for (let i=1; i<x.length; i++) {
-      let current = parseInt(x[i].getElementsByTagName("ETOS")[0].childNodes[0].nodeValue);
-      if (current > maxEtos) { maxEtos = current; index = i; }
+    for (let i=0; i<x.length; i++) {
+        let currentEtos = parseInt(x[i].getElementsByTagName("ETOS")[0].childNodes[0].nodeValue);
+        if (currentEtos > maxEtos) {
+            maxEtos = currentEtos;
+            index = i;
+        }
     }
     renderSingle(x, index);
   }
@@ -126,8 +109,29 @@ function showNewest() {
 }
 
 
-function renderSorted(x, selection) {
-  let table="<tr><th>Τίτλος</th><th>Καλλιτέχνης</th><th>Έτος</th><th>Τιμή</th></tr>";
+function showCheapest() {
+  const xhttp = new XMLHttpRequest();
+  xhttp.onload = function() {
+    const xmlDoc = this.responseXML;
+    const x = xmlDoc.getElementsByTagName("NOMISMA");
+    let minPrice = Infinity;
+    let index = 0;
+    for (let i=0; i<x.length; i++) {
+        let currentPrice = parseFloat(x[i].getElementsByTagName("TIMI")[0].childNodes[0].nodeValue);
+        if (currentPrice < minPrice) {
+            minPrice = currentPrice;
+            index = i;
+        }
+    }
+    renderSingle(x, index);
+  }
+  xhttp.open("GET", "nomismata.xml");
+  xhttp.send();
+}
+
+
+function renderResult(x, selection) {
+  let table="<tr><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
   for (let j = 0; j < selection.length; j++) {
     let i = selection[j][0];
     table += "<tr><td>" + x[i].getElementsByTagName("TITLOS")[0].childNodes[0].nodeValue + "</td><td>" +
@@ -139,7 +143,7 @@ function renderSorted(x, selection) {
 }
 
 function renderSingle(x, i) {
-  let table="<tr><th>Τίτλος</th><th>Καλλιτέχνης</th><th>Έτος</th><th>Τιμή</th></tr>";
+  let table="<tr><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
   table += "<tr><td>" + x[i].getElementsByTagName("TITLOS")[0].childNodes[0].nodeValue + "</td><td>" +
            x[i].getElementsByTagName("DIMIOURGOS")[0].childNodes[0].nodeValue + "</td><td>" +
            x[i].getElementsByTagName("ETOS")[0].childNodes[0].nodeValue + "</td><td>" +
