@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        table, th, td {
+            border : 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+        }
+        .header-info {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border: 1px double #333;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-info">
+    <h2>Προγραμματισμός στον Παγκόσμιο Ιστό</h2>
+    <p><b>Θέμα:</b> Διαχείριση Νομισμάτων (MINT) με XML & AJAX</p>
+    <p><b>Φοιτητής:</b> [Μανδαμαδιώτης Μιχαήλ - ct18162]</p>
+</div>
+
+<button type="button" onclick="loadDoc()">Εμφάνιση Συλλογής</button>
+<button type="button" onclick="loadAndSort()">Ταξινόμηση ανά Τιμή (Αύξουσα)</button>
+<br><br>
+
+<table id="demo"></table>
+
+<script>
+function loadDoc() {
+  const xhttp = new XMLHttpRequest();
+  xhttp.onload = function() {
+    myFunction(this);
+  }
+  xhttp.open("GET", "nomismata.xml");
+  xhttp.send();
+}
+
+function myFunction(xml) {
+  const xmlDoc = xml.responseXML;
+  const x = xmlDoc.getElementsByTagName("NOMISMA");
+  let table="<tr><th>Τίτλος</th><th>Καλλιτέχνης</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
+  for (let i = 0; i < x.length; i++) { 
+    table += "<tr><td>" +
+    x[i].getElementsByTagName("TITLOS")[0].childNodes[0].nodeValue +
+    "</td><td>" +
+    x[i].getElementsByTagName("DIMIOURGOS")[0].childNodes[0].nodeValue +
+    "</td><td>" +
+    x[i].getElementsByTagName("ETOS")[0].childNodes[0].nodeValue +
+    "</td><td>" +
+    x[i].getElementsByTagName("TIMI")[0].childNodes[0].nodeValue +
+    "</td></tr>";
+  }
+  document.getElementById("demo").innerHTML = table;
+}
+
+function loadAndSort() {
+  const xhttp = new XMLHttpRequest();
+  xhttp.onload = function() {
+    sortFunction(this);
+  }
+  xhttp.open("GET", "nomismata.xml");
+  xhttp.send();
+}
+
+function compare(a, b) {
+  return a[1] - b[1]; 
+}
+
+function sortFunction(xml) {
+  const xmlDoc = xml.responseXML;
+  const x = xmlDoc.getElementsByTagName("NOMISMA");
+  
+  let selection = [];
+  for (let i = 0; i < x.length; i++) {
+    // Παίρνουμε το index i και την τιμή (parseFloat για να τη δεί ως αριθμό)
+    const val = [i, parseFloat(x[i].getElementsByTagName("TIMI")[0].childNodes[0].nodeValue)];
+    selection.push(val);
+  }
+  
+  selection.sort(compare);
+  
+  let table="<tr><th>Τίτλος</th><th>Καλλιτέχνης</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
+  for (let j = 0; j < selection.length; j++) {
+    let i = selection[j][0]; // Το αρχικό index του νομίσματος
+    table += "<tr><td>" +
+    x[i].getElementsByTagName("TITLOS")[0].childNodes[0].nodeValue +
+    "</td><td>" +
+    x[i].getElementsByTagName("DIMIOURGOS")[0].childNodes[0].nodeValue +
+    "</td><td>" +
+    x[i].getElementsByTagName("ETOS")[0].childNodes[0].nodeValue +
+    "</td><td>" +
+    x[i].getElementsByTagName("TIMI")[0].childNodes[0].nodeValue +
+    "</td></tr>";
+  }
+  document.getElementById("demo").innerHTML = table;
+}
+</script>
+
+</body>
+</html>
