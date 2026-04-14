@@ -71,7 +71,7 @@
 
     <h3><div style="font-weight: bold; text-align: center; border-bottom: 5px solid" id="demo"></div></h3>
     <br>
-    <table id="organa"></table>
+    <table id="nomismata"></table>
 
 <script>
 // Χειρισμός XML μέσω AJAX
@@ -106,13 +106,13 @@ function myFunction(xml) {
         "</td></tr>";
     }
     document.getElementById("demo").innerHTML = "1ο ερώτημα: Φόρτωση Δεδομένων XML";
-    document.getElementById("organa").innerHTML = table;
+    document.getElementById("nomismata").innerHTML = table;
 }
 
 // 2: Ταξινόμηση με βάση τον Δημιουργό
 function myFunction2(xml) {
     var A = fillArrayFromXML(xml);
-    // Ταξινόμηση αλφαβητικά (Index 2 είναι ο Δημιουργός)
+    // Ταξινόμηση αλφαβητικά 
     var x = A.sort(function(a,b){ return a[2].localeCompare(b[2]); });
     
     var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
@@ -125,13 +125,13 @@ function myFunction2(xml) {
         "</td></tr>";
     }
     document.getElementById("demo").innerHTML = "2ο ερώτημα: Ταξινόμηση με βάση τον Δημιουργό";
-    document.getElementById("organa").innerHTML = table;
+    document.getElementById("nomismata").innerHTML = table;
 }
 
-// 3: Εμφάνιση Νεότερου (με βάση το Έτος)
+// 3: Εμφάνιση Νεότερου με βάση το Έτος
 function myFunction3(xml) {
     var A = fillArrayFromXML(xml);
-    // Ταξινόμηση φθίνουσα (Index 3 είναι το Έτος)
+    // Ταξινόμηση φθίνουσα 
     var x = A.sort(function(a,b){ return b[3] - a[3]; });
     
     var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
@@ -143,13 +143,13 @@ function myFunction3(xml) {
     "</td></tr>";
     
     document.getElementById("demo").innerHTML = "3ο ερώτημα: Εμφάνιση του Νεότερου (Έτος)";
-    document.getElementById("organa").innerHTML = table;
+    document.getElementById("nomismata").innerHTML = table;
 }
 
 // 4: Εμφάνιση Φθηνότερου
 function myFunction4(xml) {
     var A = fillArrayFromXML(xml);
-    // Ταξινόμηση αύξουσα (Index 4 είναι η Τιμή)
+    // Ταξινόμηση αύξουσα 
     var x = A.sort(function(a,b){ return a[4] - b[4]; });
     
     var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
@@ -161,10 +161,10 @@ function myFunction4(xml) {
     "</td></tr>";
     
     document.getElementById("demo").innerHTML = "4ο ερώτημα: Εμφάνιση του Φθηνότερου";
-    document.getElementById("organa").innerHTML = table;
+    document.getElementById("nomismata").innerHTML = table;
 }
 
-// Δημιουργία πίνακα για ευκολότερο χειρισμό
+// Δημιουργία πίνακα 
 function fillArrayFromXML(a) {
     var xmlDoc = a.responseXML;
     var nodes = xmlDoc.getElementsByTagName("NOMISMA");
