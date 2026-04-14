@@ -98,7 +98,7 @@ function myFunction(xml) {
     var xmlDoc = xml.responseXML;
     var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
     var x = xmlDoc.getElementsByTagName("NOMISMA");
-    // Κατασκευή γραμμών πίνακα με χρήση της βοηθητικής συνάρτησης getVal
+    // Δημιουργία γραμμών πίνακα με χρήση της βοηθητικής συνάρτησης getVal
     for (var i = 0; i < x.length; i++) {
         table += "<tr><td>" + i + 
         "</td><td>" + getVal(x[i], "TITLOS") + 
