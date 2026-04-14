@@ -58,10 +58,11 @@
     <h2 style="text-align: center;">Τμήμα Πολιτισμικής Τεχνολογίας και Επικοινωνίας</h2>
     <h4>Μάθημα: Προγραμματισμός στο Παγκόσμιο Ιστό</h4>
     <h4>Tίτλος Εργασίας: Εργασία Διαχείριση XML συλλογής με χρήση JS AJAX</h4>
-    <h4>Ονοματεπώνυμο Φοιτητή: Μανδαμαδιώτης Μιχαήλ / ct18162</h4>
+    <h4>Ονοματεπώνυμο Φοιτητή: Μανδαμαδιώτης Μιχαήλ</h4>
+    <h4>Α.Μ.:ct18162</h4>
     <hr>
 
-    Για την δημιουργία του αρχείου XML <a href="nomismata.xml">nomismata.xml</a> χρησιμοποίησα ως πηγή τη σελίδα <a href="https://mint.bankofgreece.gr/el/nomismata/">bankofgreece.gr</a>.<br><br>
+    Τα δεδομένα της παρούσας εργασίας λήγθηκαν απο την ιστοσελίδα της Τράπεζας ΤΗς Ελλάδος <a href="https://mint.bankofgreece.gr/el/nomismata/">bankofgreece.gr</a> και το αρχείο xml που δημιουργήθηκε είναι το παρακάτω <a href="nomismata.xml">nomismata.xml</a>.<br><br>
 
     <button id="1" type="button" class="button-1" onclick="loadDoc(this.getAttribute('id'))">1: Φόρτωση Δεδομένων</button>
     <button id="2" type="button" class="button-1" onclick="loadDoc(this.getAttribute('id'))">2: Ταξινόμηση (Δημιουργός)</button>
@@ -74,7 +75,7 @@
     <table id="nomismata"></table>
 
 <script>
-// Χειρισμός XML μέσω AJAX
+// Κύρια συνάρτηση AJAX: Φορτώνει το αρχείο XML και επιλέγει τι θα εμφανίσει
 function loadDoc(choice) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
@@ -97,6 +98,7 @@ function myFunction(xml) {
     var xmlDoc = xml.responseXML;
     var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
     var x = xmlDoc.getElementsByTagName("NOMISMA");
+    // Κατασκευή γραμμών πίνακα με χρήση της βοηθητικής συνάρτησης getVal
     for (var i = 0; i < x.length; i++) {
         table += "<tr><td>" + i + 
         "</td><td>" + getVal(x[i], "TITLOS") + 
@@ -131,7 +133,7 @@ function myFunction2(xml) {
 // 3: Εμφάνιση Νεότερου με βάση το Έτος
 function myFunction3(xml) {
     var A = fillArrayFromXML(xml);
-    // Ταξινόμηση φθίνουσα 
+    // Ταξινόμηση φθίνουσας σειράς 
     var x = A.sort(function(a,b){ return b[3] - a[3]; });
     
     var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
@@ -149,7 +151,7 @@ function myFunction3(xml) {
 // 4: Εμφάνιση Φθηνότερου
 function myFunction4(xml) {
     var A = fillArrayFromXML(xml);
-    // Ταξινόμηση αύξουσα 
+    // Ταξινόμηση αύξουσας σειράς 
     var x = A.sort(function(a,b){ return a[4] - b[4]; });
     
     var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
@@ -164,7 +166,7 @@ function myFunction4(xml) {
     document.getElementById("nomismata").innerHTML = table;
 }
 
-// Δημιουργία πίνακα 
+// Δημιουργία πίνακα με βοηθητική συνάρτηση: Μετατρέπει το XML σε δισδιάστατο πίνακα JS για ευκολότερη διαχείριση 
 function fillArrayFromXML(a) {
     var xmlDoc = a.responseXML;
     var nodes = xmlDoc.getElementsByTagName("NOMISMA");
@@ -180,12 +182,12 @@ function fillArrayFromXML(a) {
     return A;
 }
 
-// Helper συνάρτηση για λήψη τιμής
+// Βοηθητική συνάρτηση για την εξαγωγή της τιμής κειμένου από ένα συγκεκριμένο tag
 function getVal(node, tag) {
     return node.getElementsByTagName(tag)[0].childNodes[0].nodeValue;
 }
 
-// Μορφοποίηση αριθμών
+// Βοηθητική στνάρτηση για τη μορφοποίηση αριθμών με 2 δεκαδικά
 function numberWithCommas(x) {
     return parseFloat(x).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
