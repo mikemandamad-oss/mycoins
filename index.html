@@ -1,131 +1,194 @@
 <!DOCTYPE html>
-<html>
+<html lang="el">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Διαχείριση XML συλλογής με χρήση JS AJAX</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
     <style>
-        table,th,td {
-            border : 1px solid black;
+        table {
+            table-layout: fixed;
+            width: 100%;
             border-collapse: collapse;
+            border: 3px solid ;
         }
-        th,td {
-            padding: 5px;
+        th, td {
+            padding: 3px;
+            border: 1px solid #999;
+            text-align: left;
         }
-        .my-info {
-            background-color: #f2f2f2;
-            padding: 10px;
-            margin-bottom: 20px;
+        th {
+            background-color: #323232;
+            color: white;
+            font-size: 1.1em;
         }
+        .button-1 {
+            background-color: #323232;
+            border: 1px solid;
+            border-radius: 3px;
+            box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+            box-sizing: border-box;
+            color: #fff;
+            cursor: pointer;
+            display: inline-block;
+            font-family: -apple-system,system-ui,"Segoe UI","Liberation Sans",sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            margin: 0;
+            outline: none;
+            padding: 8px .8em;
+            position: relative;
+            text-align: center;
+            text-decoration: none;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            vertical-align: baseline;
+            white-space: nowrap;
+        }
+        .button-1:hover, .button-1:focus {
+            background-color: #01257D;
+            box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+        }
+        h4 { text-align:center; }
     </style>
 </head>
-<body>
+<body style="background-color: #F7F7FF;">
 
-<div class="my-info">
-    <h3>Πανεπιστήμιο Αιγαίου ΤΠΤΕ</h3>
-    <p><b>Φοιτητής:</b> Μανδαμαδιώτης Μιχαήλ - ct18162 </p>
-    <p><b>Θέμα:</b> Συλλογή Νομισμάτων (Πηγή:https://mint.bankofgreece.gr/el/nomismata/) </p>
-</div>
+    <h2 style="text-align: center;">Πανεπιστήμιο Αιγαίου</h2>
+    <h2 style="text-align: center;">Τμήμα Πολιτισμικής Τεχνολογίας και Επικοινωνίας</h2>
+    <h4>Μάθημα: Προγραμματισμός στο Παγκόσμιο Ιστό</h4>
+    <h4>Tίτλος Εργασίας: Εργασία Διαχείριση XML συλλογής με χρήση JS AJAX</h4>
+    <h4>Ονοματεπώνυμο Φοιτητή: Μανδαμαδιώτης Μιχαήλ / ct18162</h4>
+    <hr>
 
+    Για την δημιουργία του αρχείου XML <a href="nomismata.xml">nomismata.xml</a> χρησιμοποίησα ως πηγή τη σελίδα <a href="https://mint.bankofgreece.gr/el/nomismata/">bankofgreece.gr</a>.<br><br>
 
+    <button id="1" type="button" class="button-1" onclick="loadDoc(this.getAttribute('id'))">1: Φόρτωση Δεδομένων</button>
+    <button id="2" type="button" class="button-1" onclick="loadDoc(this.getAttribute('id'))">2: Ταξινόμηση (Δημιουργός)</button>
+    <button id="3" type="button" class="button-1" onclick="loadDoc(this.getAttribute('id'))">3: Εμφάνιση Νεότερου</button>
+    <button id="4" type="button" class="button-1" onclick="loadDoc(this.getAttribute('id'))">4: Εμφάνιση Φθηνότερου</button>
+    <br><br>
 
-<button type="button" onclick="loadDoc()">1. Φόρτωση δεδομένων</button>
-<button type="button" onclick="loadAndSortArtist()">2. Ταξινόμηση (Δημιουργός)</button>
-<button type="button" onclick="showNewest()">3. Εμφάνιση Νεότερου</button>
-<button type="button" onclick="showCheapest()">4. Εμφάνιση Φθηνότερου</button>
-
-<br><br>
-<table id="demo"></table>
+    <h3><div style="font-weight: bold; text-align: center; border-bottom: 5px solid" id="demo"></div></h3>
+    <br>
+    <table id="organa"></table>
 
 <script>
+// Χειρισμός XML μέσω AJAX
+function loadDoc(choice) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            switch(choice) {
+                case "1": myFunction(this); break;
+                case "2": myFunction2(this); break;
+                case "3": myFunction3(this); break;
+                case "4": myFunction4(this); break;
+                default:
+            }
+        }
+    };
+    xhttp.open("GET", "nomismata.xml", true);
+    xhttp.send();
+}
 
-function loadDoc() {
-  const xhttp = new XMLHttpRequest();
-  xhttp.onload = function() {
-    const xmlDoc = this.responseXML;
-    const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let table="<tr><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
-    for (let i = 0; i < x.length; i++) { 
-        table += "<tr><td>" + getVal(x[i], "TITLOS") + "</td><td>" + getVal(x[i], "DIMIOURGOS") + "</td><td>" + getVal(x[i], "ETOS") + "</td><td>" + getVal(x[i], "TIMI") + "</td></tr>";
+// 1: Φόρτωση Δεδομένων
+function myFunction(xml) {
+    var xmlDoc = xml.responseXML;
+    var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
+    var x = xmlDoc.getElementsByTagName("NOMISMA");
+    for (var i = 0; i < x.length; i++) {
+        table += "<tr><td>" + i + 
+        "</td><td>" + getVal(x[i], "TITLOS") + 
+        "</td><td>" + getVal(x[i], "DIMIOURGOS") +
+        "</td><td>" + getVal(x[i], "ETOS") +
+        "</td><td>" + numberWithCommas(getVal(x[i], "TIMI")) +
+        "</td></tr>";
     }
-    document.getElementById("demo").innerHTML = table;
-  }
-  xhttp.open("GET", "nomismata.xml");
-  xhttp.send();
+    document.getElementById("demo").innerHTML = "1ο ερώτημα: Φόρτωση Δεδομένων XML";
+    document.getElementById("organa").innerHTML = table;
 }
 
-
-function loadAndSortArtist() {
-  const xhttp = new XMLHttpRequest();
-  xhttp.onload = function() {
-    const xmlDoc = this.responseXML;
-    const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let selection = [];
-    for (let i=0; i<x.length; i++) {
-      selection.push([i, x[i].getElementsByTagName("DIMIOURGOS")[0].childNodes[0].nodeValue]);
+// 2: Ταξινόμηση με βάση τον Δημιουργό
+function myFunction2(xml) {
+    var A = fillArrayFromXML(xml);
+    // Ταξινόμηση αλφαβητικά (Index 2 είναι ο Δημιουργός)
+    var x = A.sort(function(a,b){ return a[2].localeCompare(b[2]); });
+    
+    var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
+    for (var i = 0; i < x.length; i++) {
+        table += "<tr><td>" + x[i][0] + 
+        "</td><td>" + x[i][1] + 
+        "</td><td>" + x[i][2] +
+        "</td><td>" + x[i][3] +
+        "</td><td>" + numberWithCommas(x[i][4]) +
+        "</td></tr>";
     }
-    selection.sort(function(a, b) {
-        if (a[1] < b[1]) return -1;
-        if (a[1] > b[1]) return 1;
-        return 0;
-    });
-    renderResult(x, selection);
-  }
-  xhttp.open("GET", "nomismata.xml");
-  xhttp.send();
+    document.getElementById("demo").innerHTML = "2ο ερώτημα: Ταξινόμηση με βάση τον Δημιουργό";
+    document.getElementById("organa").innerHTML = table;
 }
 
+// 3: Εμφάνιση Νεότερου (με βάση το Έτος)
+function myFunction3(xml) {
+    var A = fillArrayFromXML(xml);
+    // Ταξινόμηση φθίνουσα (Index 3 είναι το Έτος)
+    var x = A.sort(function(a,b){ return b[3] - a[3]; });
+    
+    var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
+    table += "<tr><td>" + x[0][0] + 
+    "</td><td>" + x[0][1] + 
+    "</td><td>" + x[0][2] +
+    "</td><td>" + x[0][3] +
+    "</td><td>" + numberWithCommas(x[0][4]) +
+    "</td></tr>";
+    
+    document.getElementById("demo").innerHTML = "3ο ερώτημα: Εμφάνιση του Νεότερου (Έτος)";
+    document.getElementById("organa").innerHTML = table;
+}
 
-function showNewest() {
-  const xhttp = new XMLHttpRequest();
-  xhttp.onload = function() {
-    const xmlDoc = this.responseXML;
-    const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let max = 0; let idx = 0;
-    for (let i=0; i<x.length; i++) {
-        let y = parseInt(getVal(x[i], "ETOS"));
-        if (y > max) { max = y; idx = i; }
+// 4: Εμφάνιση Φθηνότερου
+function myFunction4(xml) {
+    var A = fillArrayFromXML(xml);
+    // Ταξινόμηση αύξουσα (Index 4 είναι η Τιμή)
+    var x = A.sort(function(a,b){ return a[4] - b[4]; });
+    
+    var table = "<tr><th>A/A</th><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
+    table += "<tr><td>" + x[0][0] + 
+    "</td><td>" + x[0][1] + 
+    "</td><td>" + x[0][2] +
+    "</td><td>" + x[0][3] +
+    "</td><td>" + numberWithCommas(x[0][4]) +
+    "</td></tr>";
+    
+    document.getElementById("demo").innerHTML = "4ο ερώτημα: Εμφάνιση του Φθηνότερου";
+    document.getElementById("organa").innerHTML = table;
+}
+
+// Δημιουργία πίνακα για ευκολότερο χειρισμό
+function fillArrayFromXML(a) {
+    var xmlDoc = a.responseXML;
+    var nodes = xmlDoc.getElementsByTagName("NOMISMA");
+    var A = [];
+    for (var i = 0; i < nodes.length; i++) {
+        A[i] = [];
+        A[i][0] = i;
+        A[i][1] = getVal(nodes[i], "TITLOS");
+        A[i][2] = getVal(nodes[i], "DIMIOURGOS");
+        A[i][3] = getVal(nodes[i], "ETOS");
+        A[i][4] = getVal(nodes[i], "TIMI");
     }
-    renderOne(x, idx);
-  }
-  xhttp.open("GET", "nomismata.xml");
-  xhttp.send();
+    return A;
 }
 
-
-function showCheapest() {
-  const xhttp = new XMLHttpRequest();
-  xhttp.onload = function() {
-    const xmlDoc = this.responseXML;
-    const x = xmlDoc.getElementsByTagName("NOMISMA");
-    let min = 9999; let idx = 0;
-    for (let i=0; i<x.length; i++) {
-        let p = parseFloat(getVal(x[i], "TIMI"));
-        if (p < min) { min = p; idx = i; }
-    }
-    renderOne(x, idx);
-  }
-  xhttp.open("GET", "nomismata.xml");
-  xhttp.send();
-}
-
-function renderResult(x, selection) {
-  let table="<tr><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
-  for (let j = 0; j < selection.length; j++) {
-    let i = selection[j][0];
-    table += "<tr><td>" + getVal(x[i], "TITLOS") + "</td><td>" + getVal(x[i], "DIMIOURGOS") + "</td><td>" + getVal(x[i], "ETOS") + "</td><td>" + getVal(x[i], "TIMI") + "</td></tr>";
-  }
-  document.getElementById("demo").innerHTML = table;
-}
-
-function renderOne(x, i) {
-  let table="<tr><th>Τίτλος</th><th>Δημιουργός</th><th>Έτος</th><th>Τιμή (€)</th></tr>";
-  table += "<tr><td>" + getVal(x[i], "TITLOS") + "</td><td>" + getVal(x[i], "DIMIOURGOS") + "</td><td>" + getVal(x[i], "ETOS") + "</td><td>" + getVal(x[i], "TIMI") + "</td></tr>";
-  document.getElementById("demo").innerHTML = table;
-}
-
+// Helper συνάρτηση για λήψη τιμής
 function getVal(node, tag) {
-  return node.getElementsByTagName(tag)[0].childNodes[0].nodeValue;
+    return node.getElementsByTagName(tag)[0].childNodes[0].nodeValue;
+}
+
+// Μορφοποίηση αριθμών
+function numberWithCommas(x) {
+    return parseFloat(x).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 </script>
-
 </body>
 </html>
